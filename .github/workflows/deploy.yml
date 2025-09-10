@@ -29,6 +29,8 @@ jobs:
       # Zet het GHL_API_KEY secret in Cloudflare vóór deploy
       - name: Set Worker Secret (GHL_API_KEY)
         working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: |
           echo "${{ secrets.GHL_API_KEY }}" | npx wrangler secret put GHL_API_KEY --config wrangler.toml
 
@@ -54,6 +56,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: vandermarkting-site   # exact projectnaam uit Cloudflare Pages
+          projectName: vandermarkting-site   # exact projectnaam in Cloudflare Pages
           directory: site
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
