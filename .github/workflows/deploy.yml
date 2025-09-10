@@ -58,7 +58,7 @@ jobs:
           apiToken: pM3FfBDVYAzKzwL2ohNformcFEFzztwXsDKoPlVH
           accountId: e852975fb99fd0a224a09175b5375bc0
           projectName: vandermarkting # Project naam voor VanderMark'ting website
-          directory: site
+          directory: "site/VanderMark'ting Modern Website"
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
