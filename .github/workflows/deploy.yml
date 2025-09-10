@@ -1,0 +1,53 @@
+name: Deploy GHL Webhook
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy-worker:
+    runs-on: ubuntu-latest
+    name: Deploy Cloudflare Worker
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: worker/package-lock.json
+      
+      - name: Install Worker Dependencies
+        run: |
+          cd worker
+          npm ci
+      
+      - name: Deploy Worker to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          workingDirectory: 'worker'
+          command: deploy --env production
+        env:
+          GHL_API_KEY: ${{ secrets.GHL_API_KEY }}
+  
+  deploy-site:
+    runs-on: ubuntu-latest
+    name: Deploy Site to Cloudflare Pages
+    needs: deploy-worker
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: vandermarkting-site # Project naam voor VanderMark'ting website
+          directory: site
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

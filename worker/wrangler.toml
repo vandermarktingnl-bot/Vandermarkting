@@ -1,0 +1,29 @@
+# Wrangler configuratie voor GHL Webhook Worker
+
+name = "vandermarkting-webhook" # Worker naam voor VanderMark'ting
+type = "javascript"
+compatibility_date = "2023-01-01"
+
+# Hoofdscript van de worker
+main = "worker.js"
+
+# Omgevingsvariabelen (secrets worden apart beheerd via wrangler secret)
+[vars]
+# Je kunt hier standaardwaarden toevoegen, maar gebruik voor gevoelige informatie wrangler secrets
+# Voorbeeld: wrangler secret put GHL_API_KEY
+
+# Ontwikkelomgeving
+[env.dev]
+name = "vandermarkting-webhook-dev"
+
+# Productieomgeving
+[env.production]
+name = "vandermarkting-webhook"
+
+# Bundel configuratie
+[build]
+command = "npm run build"
+
+# Publicatie configuratie
+[site]
+bucket = "./dist" # Als je statische bestanden wilt hosten
