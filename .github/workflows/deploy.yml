@@ -29,8 +29,8 @@ jobs:
       - name: Deploy Worker to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          apiToken: pM3FfBDVYAzKzwL2ohNformcFEFzztwXsDKoPlVH
+          accountId: e852975fb99fd0a224a09175b5375bc0
           workingDirectory: 'worker'
           command: deploy --env production
         env:
@@ -46,8 +46,15 @@ jobs:
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: vandermarkting-site # Project naam voor VanderMark'ting website
+          apiToken: pM3FfBDVYAzKzwL2ohNformcFEFzztwXsDKoPlVH
+          accountId: e852975fb99fd0a224a09175b5375bc0
+          projectName: vandermarkting # Project naam voor VanderMark'ting website
           directory: site
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}

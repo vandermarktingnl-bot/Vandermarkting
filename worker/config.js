@@ -7,86 +7,73 @@
 
 // Vervang deze waarde met je eigen GHL API key
 // In productie: gebruik environment variables (process.env.GHL_API_KEY)
-const GHL_API_KEY = process.env.GHL_API_KEY || "YOUR_GHL_API_KEY_HERE";
+const GHL_API_KEY = process.env.GHL_API_KEY || "pM3FfBDVYAzKzwL2ohNformcFEFzztwXsDKoPlVH";
 
-// GHL API endpoint
-const GHL_API_ENDPOINT = "https://rest.gohighlevel.com/v1";
+// === Go High Level API Config ===
 
-// Webhook configuraties
+// ⚠️ Zet je API key NIET hier in plain text.
+// Gebruik altijd Cloudflare Secrets:
+//   npx wrangler secret put GHL_API_KEY
+// en roep hem dan in je worker aan met env.GHL_API_KEY
+
+const GHL_API_ENDPOINT = "https://api.leadconnectorhq.com/v1"; 
+// of: "https://rest.gohighlevel.com/v1" (afhankelijk van je omgeving)
+
 const webhookConfig = {
   // Contact webhook configuratie
   contact: {
     endpoint: `${GHL_API_ENDPOINT}/contacts`,
     requiredFields: ["name", "email"],
     optionalFields: ["phone", "address", "city", "state", "zip", "country", "source"],
-    // Tag die wordt toegevoegd aan het contact in GHL
-    tag: "Website Contact",
-    // Pipeline ID waar het contact aan wordt toegevoegd (optioneel)
-    pipelineId: "",
-    // Stage ID binnen de pipeline (optioneel)
-    stageId: "",
-    // Opportunity naam (optioneel)
+    tag: "Website Contact",          // Tag die wordt toegevoegd aan het contact
+    pipelineId: "",                  // Vul in als je direct in een pipeline wilt zetten
+    stageId: "",                     // Vul in als je direct in een pipeline stage wilt zetten
     opportunityName: "Website Contact",
-    // Custom fields mapping (optioneel)
     customFields: {
-      // Voorbeeld: "formulier_veld_naam": "GHL_custom_field_id"
+      // Voorbeeld: "form_field_name": "GHL_custom_field_id"
     }
   },
-  
+
   // Afspraak webhook configuratie
   appointment: {
     endpoint: `${GHL_API_ENDPOINT}/appointments/bookings`,
     requiredFields: ["name", "email", "date", "time", "calendar"],
     optionalFields: ["phone", "notes"],
-    // Tag die wordt toegevoegd aan het contact in GHL
     tag: "Website Afspraak",
-    // Duur van de afspraak in minuten
-    duration: 60,
-    // Custom fields mapping (optioneel)
+    duration: 60, // duur in minuten
     customFields: {}
   },
-  
+
   // Betaling webhook configuratie
   payment: {
     endpoint: `${GHL_API_ENDPOINT}/payments`,
     requiredFields: ["name", "email", "amount", "product"],
     optionalFields: ["phone", "notes"],
-    // Tag die wordt toegevoegd aan het contact in GHL
     tag: "Website Betaling",
-    // Custom fields mapping (optioneel)
     customFields: {}
   },
-  
-  // Formulier webhook configuratie (algemeen)
+
+  // Formulier webhook configuratie
   form: {
     endpoint: `${GHL_API_ENDPOINT}/forms/submit`,
-    // Vervang met jouw GHL formulier ID
-    formId: "YOUR_GHL_FORM_ID_HERE",
+    formId: "YOUR_GHL_FORM_ID_HERE", // ⚠️ Vervang met jouw echte Form ID uit GHL
     requiredFields: ["name", "email"],
     optionalFields: ["phone", "message"],
-    // Tag die wordt toegevoegd aan het contact in GHL
     tag: "Website Formulier",
-    // Custom fields mapping (optioneel)
     customFields: {}
   },
-  
+
   // Aangepaste webhook configuratie (voorbeeld)
   custom: {
     endpoint: `${GHL_API_ENDPOINT}/custom-endpoint`,
     requiredFields: [],
     optionalFields: [],
-    // Aangepaste verwerking functie (optioneel)
     processData: (data) => {
-      // Voer hier aangepaste logica uit
+      // Custom logica uitvoeren
       return data;
     },
-    // Custom fields mapping (optioneel)
     customFields: {}
   }
 };
 
-module.exports = {
-  GHL_API_KEY,
-  GHL_API_ENDPOINT,
-  webhookConfig
-};
+export { GHL_API_KEY, GHL_API_ENDPOINT, webhookConfig };

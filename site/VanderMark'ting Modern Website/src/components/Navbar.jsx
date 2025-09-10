@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Menu, X, User, LogOut } from 'lucide-react'
+import { signInWithGoogle, logOut } from '../firebase'
 
 const Navbar = ({ user, setUser }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -15,18 +16,25 @@ const Navbar = ({ user, setUser }) => {
     { name: 'Contact', path: '/contact' }
   ]
 
-  const handleGoogleLogin = () => {
-    // Simulate Google login
-    setUser({
-      name: 'John Doe',
-      email: 'john@example.com',
-      subscription: 'Growth',
-      avatar: 'https://via.placeholder.com/40'
-    })
+  const navigate = useNavigate()
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle()
+      // De gebruiker wordt automatisch bijgewerkt via de onAuthStateChanged listener in App.jsx
+    } catch (error) {
+      console.error('Login error:', error)
+    }
   }
 
-  const handleLogout = () => {
-    setUser(null)
+  const handleLogout = async () => {
+    try {
+      await logOut()
+      // De gebruiker wordt automatisch bijgewerkt via de onAuthStateChanged listener in App.jsx
+      navigate('/')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
   }
 
   return (
@@ -79,12 +87,12 @@ const Navbar = ({ user, setUser }) => {
                 </button>
               </div>
             ) : (
-              <button
-                onClick={handleGoogleLogin}
+              <Link
+                to="/login"
                 className="bg-primary hover:bg-primary/80 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 Inloggen
-              </button>
+              </Link>
             )}
           </div>
 

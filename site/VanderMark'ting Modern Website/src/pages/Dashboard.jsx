@@ -1,18 +1,40 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { User, CreditCard, FileText, Settings, Download, Edit, Eye } from 'lucide-react'
+import { updateSubscription } from '../utils/database'
 
 const Dashboard = ({ user }) => {
   const [activeTab, setActiveTab] = useState('overview')
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
 
-  // Mock data - in real app this would come from API
-  const mockUser = user || {
+  // Gebruik de echte gebruikersgegevens of een placeholder als er geen gebruiker is
+  const userData = user || {
     name: 'John Doe',
     email: 'john@example.com',
     subscription: 'Growth',
     avatar: 'https://via.placeholder.com/100',
     joinDate: '2024-01-15',
     nextBilling: '2024-02-15'
+  }
+  
+  // Functie om abonnement bij te werken
+  const handleSubscriptionChange = async (subscriptionType) => {
+    if (!user || !user.uid) return;
+    
+    setLoading(true);
+    setMessage('');
+    
+    try {
+      await updateSubscription(user.uid, subscriptionType);
+      setMessage(`Abonnement succesvol bijgewerkt naar ${subscriptionType}`);
+      // In een echte app zou je hier de gebruikersstaat bijwerken
+    } catch (error) {
+      console.error('Error bij bijwerken abonnement:', error);
+      setMessage('Er is een fout opgetreden bij het bijwerken van je abonnement');
+    } finally {
+      setLoading(false);
+    }
   }
 
   const mockInvoices = [
@@ -43,17 +65,17 @@ const Dashboard = ({ user }) => {
     {
       name: 'Basic',
       price: '€79',
-      current: mockUser.subscription === 'Basic'
+      current: userData.subscription === 'Basic'
     },
     {
       name: 'Growth',
       price: '€139',
-      current: mockUser.subscription === 'Growth'
+      current: userData.subscription === 'Growth'
     },
     {
       name: 'Pro',
       price: '€229',
-      current: mockUser.subscription === 'Pro'
+      current: userData.subscription === 'Pro'
     }
   ]
 
@@ -94,7 +116,7 @@ const Dashboard = ({ user }) => {
               className="w-16 h-16 rounded-full"
             />
             <div>
-              <h1 className="text-3xl font-bold">Welkom terug, {mockUser.name}</h1>
+              <h1 className="text-3xl font-bold">Welkom terug, {userData.name}</h1>
               <p className="text-gray-400">Beheer je account en abonnement</p>
             </div>
           </div>
