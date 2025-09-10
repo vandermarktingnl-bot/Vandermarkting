@@ -2,9 +2,10 @@ name: Deploy GHL Webhook
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
+    paths:
+      - 'worker/**'
+      - 'site/**'
   workflow_dispatch:
 
 jobs:
@@ -13,19 +14,27 @@ jobs:
     name: Deploy Cloudflare Worker
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: worker/package-lock.json
-      
+
       - name: Install Worker Dependencies
+        working-directory: worker
+        run: npm ci
+
+      # Zet het GHL_API_KEY secret in Cloudflare vóór deploy
+      - name: Set Worker Secret (GHL_API_KEY)
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: |
-          cd worker
-          npm ci
-      
+          echo "${{ secrets.GHL_API_KEY }}" | npx wrangler secret put GHL_API_KEY --config wrangler.toml
+
+      # Deploy de worker
       - name: Deploy Worker to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
@@ -33,19 +42,20 @@ jobs:
           accountId: e852975fb99fd0a224a09175b5375bc0
           workingDirectory: 'worker'
           command: deploy --env production
+          quiet: true
         env:
           GHL_API_KEY: ${{ secrets.GHL_API_KEY }}
-  
   deploy-site:
     runs-on: ubuntu-latest
     name: Deploy Site to Cloudflare Pages
     needs: deploy-worker
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
+<<<<<<< HEAD
           apiToken: pM3FfBDVYAzKzwL2ohNformcFEFzztwXsDKoPlVH
           accountId: e852975fb99fd0a224a09175b5375bc0
           projectName: vandermarkting # Project naam voor VanderMark'ting website
@@ -58,3 +68,10 @@ jobs:
           FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
           FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+=======
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: vandermarkting-site   # exact projectnaam in Cloudflare Pages
+          directory: site
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+>>>>>>> 1f40f8b35dfdd81345d9e4e84c35a8bc901ac436
