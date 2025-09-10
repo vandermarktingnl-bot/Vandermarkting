@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build:site": "cd \"site/VanderMark'ting Modern Website\" && npm ci && npm run build && mkdir -p ../../dist && cp -r dist/* ../../dist/"
+  },
   "devDependencies": {
     "wrangler": "^4.35.0"
   }

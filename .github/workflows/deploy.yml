@@ -57,15 +57,12 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: site/VanderMark\'ting\ Modern\ Website/package-lock.json
 
-      - name: Install Site Dependencies
-        working-directory: site/VanderMark\'ting\ Modern\ Website
+      - name: Install Root Dependencies
         run: npm ci
-
+        
       - name: Build Site
-        working-directory: site/VanderMark\'ting\ Modern\ Website
-        run: npm run build
+        run: npm run build:site
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
@@ -73,7 +70,7 @@ jobs:
           apiToken: pM3FfBDVYAzKzwL2ohNformcFEFzztwXsDKoPlVH
           accountId: e852975fb99fd0a224a09175b5375bc0
           projectName: vandermarkting # Project naam voor VanderMark'ting website
-          directory: "site/VanderMark'ting Modern Website/dist"
+          directory: "dist"
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
