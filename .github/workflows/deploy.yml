@@ -12,11 +12,11 @@ jobs:
   deploy-worker:
     runs-on: ubuntu-latest
     name: Deploy Cloudflare Worker
-    if: contains(join(github.event.commits.*.modified), 'worker/') || contains(join(github.event.commits.*.added), 'worker/') || contains(join(github.event.commits.*.removed), 'worker/') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '20'
           cache: 'npm'
@@ -26,18 +26,19 @@ jobs:
         working-directory: worker
         run: npm ci
 
-      # Zet/rotate het secret in Cloudflare vóór deploy
+      # Zet het GHL_API_KEY secret in Cloudflare vóór deploy
       - name: Set Worker Secret (GHL_API_KEY)
         working-directory: worker
         run: |
-          echo "${{ secrets.GHL_API_KEY }}" | npx wrangler secret put GHL_API_KEY --yes
+          echo "${{ secrets.GHL_API_KEY }}" | npx wrangler secret put GHL_API_KEY --config wrangler.toml
 
+      # Deploy de worker
       - name: Deploy Worker to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          workingDirectory: 'worker'
+          workingDirectory: worker
           command: deploy
           quiet: true
 
@@ -45,7 +46,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy Site to Cloudflare Pages
     needs: deploy-worker
-    if: contains(join(github.event.commits.*.modified), 'site/') || contains(join(github.event.commits.*.added), 'site/') || contains(join(github.event.commits.*.removed), 'site/') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
 
@@ -54,6 +54,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: vandermarkting-site   # exact CF Pages projectnaam
+          projectName: vandermarkting-site   # exact projectnaam uit Cloudflare Pages
           directory: site
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
